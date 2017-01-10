@@ -1,0 +1,4 @@
+.DS_Store
+
+# don't check in test pdfs for now..
+pdfs
