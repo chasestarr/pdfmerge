@@ -37,10 +37,10 @@ func merge(root string, file os.FileInfo) {
 
 		if len(pdfs) >= 2 {
 			cmd := "java"
-			args := []string{"-jar", "./jar/pdfbox.jar", "PDFMerger"}
+			args := []string{"-jar", os.Args[2], "PDFMerger"}
 			args = append(args, pdfs...)
 
-			output := path + "/" + os.Args[2]
+			output := path + "/" + os.Args[3]
 			args = append(args, output)
 
 			if err := exec.Command(cmd, args...).Run(); err != nil {
@@ -77,8 +77,30 @@ func isPdf(file os.FileInfo) bool {
 	return false
 }
 
+func checkInput() {
+	if len(os.Args) < 4 {
+		log.Fatal("must pass 3 arguments to 'pdfmerge', (root directory, path to pdfbox.jar, output file name)")
+	}
+	if _, err := ioutil.ReadDir(os.Args[1]); err != nil {
+		log.Fatal("first argument to 'pdfmerge' is not a directory, ", err)
+	}
+
+	if _, err := ioutil.ReadFile(os.Args[2]); err != nil {
+		log.Fatal("second argument to 'pdfmerge', path to pdfbox.jar file could not be resolved, ", err)
+	}
+
+	if len(os.Args[3]) < 5 {
+		log.Fatal("third argument to 'pdfmerge' must be longer than 4 characters")
+	}
+
+	if os.Args[3][len(os.Args[3])-4:] != ".pdf" {
+		log.Fatal("third argument to 'pdfmerge' must be a .pdf file")
+	}
+}
+
 // /Users/chasestarr/Dropbox/hr/job-search
 func main() {
+	checkInput()
 	root := os.Args[1]
 	fsdft.DFT(root, merge)
 }
