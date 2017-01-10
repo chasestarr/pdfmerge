@@ -17,21 +17,25 @@ func readDir(root string) []os.FileInfo {
 	return files
 }
 
-func readFiles(root string, files []os.FileInfo) {
+func getPdfs(root string, files []os.FileInfo) []string {
+	pdfs := []string{}
 	for _, file := range files {
 		if isPdf(file) {
 			path := root + "/" + file.Name()
-			pdf, _ := ioutil.ReadFile(path)
-			fmt.Println(pdf)
+			pdfs = append(pdfs, path)
 		}
 	}
+	return pdfs
 }
 
-func print(root string, file os.FileInfo) {
+func merge(root string, file os.FileInfo) {
 	path := root + "/" + file.Name()
 	if file.IsDir() && isLeafDir(path) {
 		files := readDir(path)
-		readFiles(path, files)
+		pdfs := getPdfs(path, files)
+		if len(pdfs) >= 2 {
+			fmt.Println(pdfs)
+		}
 	}
 }
 
@@ -63,6 +67,5 @@ func isPdf(file os.FileInfo) bool {
 // /Users/chasestarr/Dropbox/hr/job-search
 func main() {
 	root := os.Args[1]
-	// c := make(chan string)
-	fsdft.DFT(root, print)
+	fsdft.DFT(root, merge)
 }
