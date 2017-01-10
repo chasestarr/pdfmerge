@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 
 	"github.com/chasestarr/fsdft"
 )
@@ -33,8 +34,20 @@ func merge(root string, file os.FileInfo) {
 	if file.IsDir() && isLeafDir(path) {
 		files := readDir(path)
 		pdfs := getPdfs(path, files)
+
 		if len(pdfs) >= 2 {
-			fmt.Println(pdfs)
+			cmd := "java"
+			args := []string{"-jar", "./jar/pdfbox.jar", "PDFMerger"}
+			args = append(args, pdfs...)
+
+			output := path + "/" + os.Args[2]
+			args = append(args, output)
+
+			if err := exec.Command(cmd, args...).Run(); err != nil {
+				fmt.Println("oh no!")
+				log.Fatal(err)
+			}
+			fmt.Println("merged file at:", output)
 		}
 	}
 }
